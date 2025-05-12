@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: my-custom-odoo:latest
+    container_name: my-odoo-app
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    volumes:
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      - ./addons:/mnt/extra-addons
+      - odoo-web-data:/var/lib/odoo
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+      - DATABASE_NAME=prod_db
+    command: >
+      bash -c "
+        while ! pg_isready -h db -U odoo; do
+          sleep 1;
+        done;
+        if [ ! -f /var/lib/odoo/.initialized ]; then
+          odoo -d prod_db --db_user=odoo --db_password=odoo -i base --without-demo=all --save --stop-after-init;
+          touch /var/lib/odoo/.initialized;
+        fi;
+        odoo -d prod_db --db_user=odoo --db_password=odoo
+      "
+    tty: true
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: my-odoo-db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+
+volumes:
+  odoo-web-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/odoo
+      o: bind
+  odoo-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/data/postgres
+      o: bind
+
