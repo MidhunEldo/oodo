@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odoo-config
+data:
+  odoo.conf: |
+    [options]
+    addons_path = /mnt/extra-addons
+    data_dir = /var/lib/odoo
+    db_host = {{ .Values.odoo.db.host }}
+    db_port = {{ .Values.odoo.db.port }}
+    db_user = {{ .Values.odoo.db.user }}
+    db_password = {{ .Values.odoo.db.password }}
+    admin_passwd = {{ .Values.odoo.admin_passwd }}

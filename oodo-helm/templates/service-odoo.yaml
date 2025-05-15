@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo
+spec:
+  type: {{ .Values.odoo.service.type }}
+  ports:
+    - port: {{ .Values.odoo.service.port }}
+      targetPort: 8069
+      nodePort: {{ .Values.odoo.service.nodePort }}
+  selector:
+    app: odoo

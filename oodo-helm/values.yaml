@@ -1,0 +1,23 @@
+odoo:
+  image: midhuneldo/odoo:latest
+  admin_passwd: admin
+  db:
+    host: postgres
+    port: 5432
+    user: odoo
+    password: odoo
+  service:
+    type: NodePort
+    port: 8069
+    nodePort: 30069
+  pvc:
+    storage: 1Gi
+
+postgres:
+  image: postgres:15
+  db: postgres
+  user: odoo
+  password: odoo
+  pvc:
+    storage: 1Gi
+  port: 5432
